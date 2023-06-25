@@ -1,5 +1,6 @@
 use volatile::Volatile;
 use core::fmt;
+use core::fmt::Write;
 
 #[allow(dead_code)]
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
@@ -84,8 +85,17 @@ impl Writer {
 		if self.row_position >= BUFFER_HEIGHT {
 			for i in 1..BUFFER_HEIGHT {
 				for j in 0..BUFFER_WIDTH {
-					self.buffer.chars[i - 1][j] = self.buffer.chars[i][j].clone();
+					self.buffer.chars[i - 1][j].write(self.buffer.chars[i][j].read());
 				}
+			}
+
+
+			let blank = ScreenChar {
+                ascii_character: b' ',
+                color_code: self.color_code,
+            };
+			for i in 0..BUFFER_WIDTH {
+				self.buffer.chars[BUFFER_HEIGHT - 1][i].write(blank);
 			}
 		} else {
 			self.row_position += 1;
@@ -104,6 +114,12 @@ impl Writer {
 	}
 }
 
+impl fmt::Write for Writer {
+    fn write_str(&mut self, s: &str) -> fmt::Result {
+        self.write_string(s);
+        Ok(())
+    }
+}
 
 pub fn print_something() {
     let mut writer = Writer {
@@ -113,18 +129,8 @@ pub fn print_something() {
         buffer: unsafe { &mut *(0xb8000 as *mut Buffer) },
     };
 
-	loop {
-		writer.write_byte(b'H');
-		writer.write_string("ello ");
-		writer.write_string("Wörld!");
+	{
+		writer.write_string("Hello");
+		write!(writer, " world, {}", 42.0).unwrap();
 	}
-}
-
-
-
-impl fmt::Write for Writer {
-    fn write_str(&mut self, s: &str) -> fmt::Result {
-        self.write_string(s);
-        Ok(())
-    }
 }
