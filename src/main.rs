@@ -24,6 +24,14 @@ fn trivial_assertion() {
 }
 
 
+#[test_case]
+fn trivial_assertion_2() {
+    print!("trivial assertion 2 ... ");
+    assert_eq!(1, 1);
+    println!("[ok]");
+}
+
+
 #[no_mangle]
 pub extern "C" fn _start() -> ! {
 	println!("Hello world!");
