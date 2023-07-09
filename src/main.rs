@@ -7,6 +7,7 @@
 use core::panic::PanicInfo;
 
 mod vga_buffer;
+mod serial;
 
 #[cfg(test)]
 fn test_runner(tests: &[&dyn Fn()]) {
@@ -15,6 +16,14 @@ fn test_runner(tests: &[&dyn Fn()]) {
         test();
     }
 }
+
+#[test_case]
+fn trivial_assertion() {
+    serial_print!("trivial assertion... ");
+    assert_eq!(1, 1);
+    serial_println!("[ok]");
+}
+
 
 #[test_case]
 fn trivial_assertion() {
